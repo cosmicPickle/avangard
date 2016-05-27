@@ -23,48 +23,88 @@ class Game extends CI_Controller {
 		if(!$gameId)
 			return null;
 
-		//Loading the header
-		$this->load->view('gameHeader');
-
+		//Loading the models
 		$this->load->model('PlayerModel');
 		$this->load->model('GameModel');
 		$this->load->model('UnitsModel');
 
-		//Settign the player in session if there is POST
+		//Loading the game
+		$this->game = $this->GameModel->loadGame($gameId);
+		$this->game->config = json_decode($this->game->config);
+		$this->game->boardState = json_decode($this->game->boardState);
+
+		//Loading the header
+		$this->load->view('gameHeader', ['game' => $this->game]);
+
+		if(method_exists($this, '_' . $this->game->gameState))
+			$this->{'_' . $this->game->gameState}();
+
+		$this->load->view('gameFooter', ['game' => $this->game]);
+	}
+
+	private function _waiting() {
+		//Setting the player in session if there is POST
 		if($this->input->post('player')) {
 			$this->session->playerId = $this->input->post('player');
 			$this->PlayerModel->joinToGame($this->session->playerId);
 
-			if($this->GameModel->allJoined($gameId))
-				$this->GameModel->updateState($gameId, 'setup');
+			if($this->GameModel->allJoined($this->game->id))
+				$this->GameModel->updateState($this->game->id, 'setup');
 		}
 
 		//Checking if the user has been set
 		if(!$this->session->playerId)
-			$this->load->view('setPlayer', ['players' => $this->PlayerModel->getPlayers($gameId)]);
-		else {
+			$this->load->view('setPlayer', ['players' => $this->PlayerModel->getPlayers($this->game->id)]);
+		else
+			$this->load->view('waitingForPlayers');
+	}
 
-			$game = $this->GameModel->loadGame($gameId);
-			$game->config = json_decode($game->config);
-			$game->boardState = json_decode($game->boardState);
+	private function _setup() {
+		$units = $this->UnitsModel->load();
+		$player = $this->PlayerModel->getPlayer($this->session->playerId);
+		$player->units = json_decode($player->units);
 
-			$units = $this->UnitsModel->load();
+		foreach($player->units as $key => $unit) {
+			$amount = $unit->amount;
+			foreach($units as $u)
+				if($u->id == $unit->id)
+					$unit = $u;
+			$unit->amount = $amount;
 
-			$player = $this->PlayerModel->getPlayer($this->session->playerId);
-			$player->units = json_decode($player->units);
-
-			foreach($player->units as $key => $unit) {
-				$amount = $unit->amount;
-				foreach($units as $u)
-					if($u->id == $unit->id)
-						$unit = $u;
-				$unit->amount = $amount;
-
-				$player->units[$key] = $unit;
-			}
-			$this->load->view('gamePlay', ['game' => $game, 'player' => $player, 'units' => $units]);
+			$player->units[$key] = $unit;
 		}
 
-		$this->load->view('gameFooter');
+		if($this->input->post('playerBoardState')) {
+			$playerBoardState = $this->input->post('playerBoardState');
+			foreach(json_decode($playerBoardState) as $x => $row)
+				foreach($row as $y => $cell) {
+					if($cell != null)
+						$this->game->boardState[$x][$y] = $cell;
+				}
+
+			if($this->PlayerModel->readyForGame($this->game->id, $player->id, json_encode($this->game->boardState)))
+				$player->ready = true;
+			
+			if($this->GameModel->allReady($this->game->id))
+			  	$this->GameModel->updateState($this->game->id, 'play');
+		}
+
+		if(!$player->ready) 
+			$this->load->view('gamePlay', [
+				'game' => $this->game, 
+				'player' => $player, 
+				'units' => $units,
+
+				'unitsSetup' => $this->load->view('unitsSetup', [
+					'game' => $this->game, 
+					'player' => $player
+				], true)
+			]);
+		else
+			$this->load->view('waitingForPlayers');
+	}
+
+	private function _play() {
+
 	}
 }

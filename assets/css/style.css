@@ -53,10 +53,11 @@
 	margin:0 auto;
 }
 .units {
-	width:90px;
-	height:90px;
+	width:110px;
+	height:110px;
 	position:relative;
 	margin:10px auto;
+	background:#c1c1c1;
 }
 
 .unit {
@@ -64,8 +65,8 @@
 	width:87px;
 	height:90px;
 	position:absolute;
-	top: 0;
-	left: 0;
+	top: 10px;
+	left: 10px;
 	background: #fff;
 	border:1px solid #c1c1c1;
 	padding:10px;

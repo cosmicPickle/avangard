@@ -12,6 +12,15 @@ class GameModel extends CI_Model {
 						->count_all_results() == 0;
 	}
 
+	public function allReady($gameId) {
+		return $this->db->select('game_player.gameId, player.*')
+						->where('gameId', $gameId)
+						->where('game_player.ready', 0)
+						->from('game_player')
+						->join('player', 'game_player.playerId = player.id')
+						->count_all_results() == 0;
+	}
+
 	public function updateState($gameId, $status) {
 		return $this->db->where('id', $gameId)->update('game', ['gameState' => $status]);
 	}
