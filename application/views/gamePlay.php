@@ -5,7 +5,7 @@
 		<?php foreach($player->units as $unit) : ?>
 		<div class="units">
 			<?php for($i = 0; $i < $unit->amount; $i++) : ?>
-			<div class="unit" data-unit-id="<?php echo $unit->id ?>">
+			<div class="unit" style="background: <?php echo $player->color; ?>" data-unit-id="<?php echo $unit->id ?>">
 				<p><?php echo $unit->name; ?></p>
 				<p>Amount: <span class="amount unit-id-amount-<?php echo $unit->id ?>"><?php echo $unit->amount; ?></span></p>
 			</div>
@@ -17,7 +17,7 @@
 		<?php for($i = 0; $i < 10; $i ++) : ?>
 			<div class="board-row">
 			<?php for($j = 0; $j < 10; $j ++) : ?>
-				<?php 
+				<?php
 					$disallowed = $game->config->disallowed[$i][$j];
 					$availableForPlayerSetup = $game->config->playerSetup[$player->order][$i][$j];
 				?>
