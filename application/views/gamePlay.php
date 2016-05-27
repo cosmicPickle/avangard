@@ -9,7 +9,7 @@
 		<?php for($i = 0; $i < 10; $i ++) : ?>
 			<div class="board-row">
 			<?php for($j = 0; $j < 10; $j ++) : ?>
-				<?php 
+				<?php
 					$disallowed = $game->config->disallowed[$i][$j];
 					$availableForPlayerSetup = $game->config->playerSetup[$player->order][$i][$j];
 				?>
