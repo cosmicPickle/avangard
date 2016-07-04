@@ -73,3 +73,8 @@
 	cursor:pointer;
 	z-index:10;
 }
+
+.unit.inBoard {
+	top:0;
+	left:0;
+}

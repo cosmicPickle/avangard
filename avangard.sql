@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: May 26, 2016 at 05:35 PM
+-- Generation Time: Jul 04, 2016 at 06:51 PM
 -- Server version: 5.6.17
 -- PHP Version: 5.5.12
 
@@ -53,6 +53,8 @@ CREATE TABLE IF NOT EXISTS `game_player` (
   `gameId` int(11) NOT NULL,
   `playerId` int(11) NOT NULL DEFAULT '0',
   `joined` int(11) NOT NULL DEFAULT '0',
+  `ready` int(11) NOT NULL DEFAULT '0',
+  `lastConnection` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `player_id` (`playerId`,`joined`),
   KEY `game_id` (`gameId`)
@@ -62,9 +64,9 @@ CREATE TABLE IF NOT EXISTS `game_player` (
 -- Dumping data for table `game_player`
 --
 
-INSERT INTO `game_player` (`id`, `gameId`, `playerId`, `joined`) VALUES
-(1, 1, 1, 1),
-(2, 1, 2, 1);
+INSERT INTO `game_player` (`id`, `gameId`, `playerId`, `joined`, `ready`, `lastConnection`) VALUES
+(1, 1, 1, 1, 0, '2016-07-04 15:51:00'),
+(2, 1, 2, 1, 0, '2016-07-04 15:50:59');
 
 -- --------------------------------------------------------
 
@@ -100,6 +102,7 @@ CREATE TABLE IF NOT EXISTS `units` (
   `name` varchar(255) NOT NULL,
   `attack` int(11) NOT NULL,
   `health` int(11) NOT NULL,
+  `speed` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
@@ -107,9 +110,9 @@ CREATE TABLE IF NOT EXISTS `units` (
 -- Dumping data for table `units`
 --
 
-INSERT INTO `units` (`id`, `name`, `attack`, `health`) VALUES
-(1, 'Cavalry', 200, 200),
-(2, 'Infantry', 200, 200);
+INSERT INTO `units` (`id`, `name`, `attack`, `health`, `speed`) VALUES
+(1, 'Cavalry', 200, 200, 2),
+(2, 'Infantry', 200, 200, 1);
 
 --
 -- Constraints for dumped tables

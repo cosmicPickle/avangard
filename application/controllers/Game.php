@@ -18,6 +18,16 @@ class Game extends CI_Controller {
 	 * map to /index.php/welcome/<method_name>
 	 * @see https://codeigniter.com/user_guide/general/urls.html
 	 */
+
+
+	public function resetGame($gameId) {
+		$this->load->model('PlayerModel');
+		$this->load->model('GameModel');
+
+		$this->PlayerModel->resetPlayers($gameId);
+		$this->GameModel->resetBoard($gameId);
+	}
+
 	public function play($gameId = NULL)
 	{	
 		if(!$gameId)
@@ -90,21 +100,45 @@ class Game extends CI_Controller {
 		}
 
 		if(!$player->ready) 
-			$this->load->view('gamePlay', [
+			$this->load->view('gameSetup', [
 				'game' => $this->game, 
 				'player' => $player, 
-				'units' => $units,
-
-				'unitsSetup' => $this->load->view('unitsSetup', [
-					'game' => $this->game, 
-					'player' => $player
-				], true)
+				'units' => $units
 			]);
 		else
 			$this->load->view('waitingForPlayers');
 	}
 
 	private function _play() {
+		$units = $this->UnitsModel->load();
+		$players = $this->PlayerModel->getPlayers($this->game->id, 1);
 
+		$player = array_filter($players, function($p) {
+			return $p->id == $this->session->playerId;
+		});
+		$player = reset($player);
+
+		foreach($this->game->boardState as $rkey => $row) {
+			foreach($row as $ckey => $cell) {
+				if($cell === null)
+					continue;
+
+				$cell->player = array_filter($players, function($p) use (&$cell){
+					return $p->id == $cell->playerId;
+				});
+				$cell->player = reset($cell->player);
+
+				$cell->unit = array_filter($units, function($p) use (&$cell){
+					return $p->id == $cell->unitId;
+				});
+				$cell->unit = reset($cell->unit);
+			}
+		}
+		$this->load->view('gamePlay', [
+			'game' => $this->game, 
+			'players' => $players, 
+			'player' => $player,
+			'units' => $units
+		]);
 	}
 }

@@ -3,21 +3,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class PlayerModel extends CI_Model {
 
-	public function getPlayers($gameId)
+	public function getPlayers($gameId, $joined = 0)
 	{
 		return $this->db->select('game_player.gameId, player.*')
 						->where('gameId', $gameId)
-						->where('game_player.joined', 0)
+						->where('game_player.joined', $joined)
 						->from('game_player')
 						->join('player', 'game_player.playerId = player.id')
 						->get()->result();
 	}
 
-	public function getPlayer($playerId)
+	public function getPlayer($playerId, $joined = 1)
 	{
 		return $this->db->select('game_player.gameId, game_player.joined, game_player.ready, player.*')
 						->where('playerId', $playerId)
-						->where('game_player.joined', 1)
+						->where('game_player.joined', $joined)
 						->from('game_player')
 						->join('player', 'game_player.playerId = player.id')
 						->get()->row();
@@ -51,5 +51,9 @@ class PlayerModel extends CI_Model {
 
 	public function drop($playerId) {
 		return $this->db->where('playerId', $playerId)->set('joined', 0)->update('game_player');
+	}
+
+	public function resetPlayers($gameId) {
+		return $this->db->where('gameId', $gameId)->update('game_player', ['joined' => 0, 'ready' => 0]);
 	}
 }

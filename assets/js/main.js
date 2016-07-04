@@ -6,6 +6,8 @@ var gameState = $('#gameState').val();
 var gameConfig = $.parseJSON($('#gameConfig').val());
 var boardState = $.parseJSON($('#boardState').val());
 
+var boardSize = 10;
+
 var updateGameStateInterval = 3000;
 var updateBoardStateInterval = 3000;
 
@@ -19,6 +21,10 @@ $(document).ready(function(){
 				url : feedUrl + 'gameState/' + gameId,
 				success : function(data) {
 					data = $.parseJSON(data);
+
+					if(data.error && data.reload === 1) 
+						window.location.reload();
+
 					if(data.ok && gameState != data.gameState)
 						window.location.reload();
 				}

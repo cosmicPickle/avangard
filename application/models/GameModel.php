@@ -28,4 +28,16 @@ class GameModel extends CI_Model {
 	public function loadGame($gameId) {
 		return $this->db->where('id', $gameId)->get('game')->row();
 	}
+
+	public function resetBoard($gameId) {
+		$default = [];
+
+		for($i = 0; $i < 10; $i++) {
+			$default[$i] = [];
+			for($j = 0; $j < 10; $j++)
+				$default[$i][$j] = null;
+		}
+
+		$this->db->where('id', $gameId)->update('game', ['boardState' => json_encode($default)]);
+	}
 }
